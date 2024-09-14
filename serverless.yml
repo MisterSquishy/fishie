@@ -11,6 +11,4 @@ functions:
   api:
     handler: index.handler
     events:
-      - httpApi:
-          path: /
-          method: get
+      - schedule: rate(15 minutes)
