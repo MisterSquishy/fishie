@@ -12,6 +12,7 @@
     "tough-cookie-filestore2": "^1.0.0"
   },
   "scripts": {
+    "deploy": "serverless deploy",
     "go": "serverless invoke local --function api"
   }
 }

@@ -24,10 +24,9 @@ module.exports.handler = async (event) => {
 };
 
 const getMostRecentFishCaption = async (ig: IgApiClient, myPk: number): Promise<string> => {
-  const birdieFeed = ig.feed.user(myPk);
-  const birdiePosts = await birdieFeed.items();
-  const mostRecentPostUrl = birdiePosts[0].image_versions2.candidates[0].url
-  return birdiePosts[0].caption!.text
+  const fishieFeed = ig.feed.user(myPk);
+  const fishiePosts = await fishieFeed.items();
+  return fishiePosts[0].caption!.text
 }
 
 const getMostRecentBird = async (ig: IgApiClient): Promise<{ image: Buffer, caption: string }> => {
@@ -49,7 +48,7 @@ const birdToFish = async (image: Buffer): Promise<Buffer> => {
   console.log(`converting bird to fish`)
   const response = await axios.postForm(DEZGO_API_URL, formData, {
     headers: {
-      "X-Dezgo-Key": env['X-Dezgo-Key'],
+      "X-Dezgo-Key": env['X_DEZGO_KEY'],
     },
     timeout: 60000,
     responseType: 'arraybuffer',
