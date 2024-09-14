@@ -9,7 +9,8 @@ provider:
   runtime: nodejs18.x
 
 functions:
-  api:
+  cron:
     handler: index.handler
+    timeout: 60 # seconds
     events:
       - schedule: rate(15 minutes)
