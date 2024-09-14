@@ -26,7 +26,7 @@ module.exports.handler = async (event) => {
 const getMostRecentFishCaption = async (ig: IgApiClient, myPk: number): Promise<string> => {
   const fishieFeed = ig.feed.user(myPk);
   const fishiePosts = await fishieFeed.items();
-  return fishiePosts[0].caption!.text
+  return fishiePosts?.[0]?.caption?.text ?? ''
 }
 
 const getMostRecentBird = async (ig: IgApiClient): Promise<{ image: Buffer, caption: string }> => {
