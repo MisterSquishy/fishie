@@ -43,6 +43,7 @@ const birdToFish = async (image: Buffer): Promise<Buffer> => {
   const formData = new FormData();
   formData.append('mask_prompt', 'bird');
   formData.append('prompt', 'fish');
+  formData.append('negative_prompt', 'poorly drawn tail')
   formData.append('init_image', image, { filename: 'image.jpg', contentType: 'image/jpeg' })
 
   console.log(`converting bird to fish`)
