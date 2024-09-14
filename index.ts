@@ -12,12 +12,23 @@ module.exports.handler = async (event) => {
   const ig = new IgApiClient();
   ig.state.generateDevice(env.IG_USERNAME!);
   console.log(`logging in to IG`)
-  await ig.account.login(env.IG_USERNAME!, env.IG_PASSWORD!);
-
+  const me = await ig.account.login(env.IG_USERNAME!, env.IG_PASSWORD!);
   const bird = await getMostRecentBird(ig)
+  const mostRecentCaption = await getMostRecentFishCaption(ig, me.pk)
+  if (bird.caption === mostRecentCaption) {
+    console.log("short-circuiting, we already fished the most recent bird")
+    return
+  }
   const fish = await birdToFish(bird.image)
   await postToInsta(ig, fish, bird.caption)
 };
+
+const getMostRecentFishCaption = async (ig: IgApiClient, myPk: number): Promise<string> => {
+  const birdieFeed = ig.feed.user(myPk);
+  const birdiePosts = await birdieFeed.items();
+  const mostRecentPostUrl = birdiePosts[0].image_versions2.candidates[0].url
+  return birdiePosts[0].caption!.text
+}
 
 const getMostRecentBird = async (ig: IgApiClient): Promise<{ image: Buffer, caption: string }> => {
   const birdieFeed = ig.feed.user(LOOK_AT_THE_BIRDIE_PK);
