@@ -6,36 +6,37 @@ import pngToJpeg from 'png-to-jpeg';
 import { env } from 'process';
 
 const DEZGO_API_URL = 'https://api.dezgo.com/text-inpainting'
-const LOOK_AT_THE_BIRDIE_PK = 49451361619
+const BIRDIE_PK = 49451361619
+const FISHIE_PK = 68845303124
 
 module.exports.handler = async (event) => {
   const ig = new IgApiClient();
   ig.state.generateDevice(env.IG_USERNAME!);
-  console.log(`logging in to IG`)
-  const me = await ig.account.login(env.IG_USERNAME!, env.IG_PASSWORD!);
+  const mostRecentCaption = await getMostRecentFishCaption(ig)
   const bird = await getMostRecentBird(ig, mostRecentCaption)
-  const mostRecentCaption = await getMostRecentFishCaption(ig, me.pk)
   if (bird.caption === mostRecentCaption) {
     console.log("short-circuiting, we already fished the most recent bird")
     return
   }
+  console.log(`logging in to IG`)
+  const me = await ig.account.login(env.IG_USERNAME!, env.IG_PASSWORD!);
   const fish = await birdToFish(bird.image)
   await postToInsta(ig, fish, bird.caption)
 };
 
-const getMostRecentFishCaption = async (ig: IgApiClient, myPk: number): Promise<string> => {
-  const fishieFeed = ig.feed.user(myPk);
+const getMostRecentFishCaption = async (ig: IgApiClient): Promise<string> => {
+  const fishieFeed = ig.feed.user(FISHIE_PK);
   const fishiePosts = await fishieFeed.items();
   return fishiePosts?.[0]?.caption?.text ?? ''
 }
 
 const getMostRecentBird = async (ig: IgApiClient, mostRecentCaption: string): Promise<{ image: Buffer, caption: string }> => {
-  const birdieFeed = ig.feed.user(LOOK_AT_THE_BIRDIE_PK);
+  const birdieFeed = ig.feed.user(BIRDIE_PK);
   const birdiePosts = await birdieFeed.items();
   const mostRecentPostUrl = birdiePosts[0].image_versions2.candidates[0].url
   const caption = birdiePosts[0].caption!.text
   if (caption === mostRecentCaption) {
-    // optimization; dont fetch image if we already fished it
+    // optimization; dont fetch bird image if we already fished it
     console.log(`skipping image fetch for ${caption}`)
     return { image: Buffer.of(), caption }
   }
