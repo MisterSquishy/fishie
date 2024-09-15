@@ -13,10 +13,13 @@ module.exports.handler = async (event) => {
   const ig = new IgApiClient();
   ig.state.generateDevice(env.IG_USERNAME!);
   const mostRecentCaption = await getMostRecentFishCaption(ig)
+  console.log(`most recent fish caption is ${mostRecentCaption}`)
   const bird = await getMostRecentBird(ig, mostRecentCaption)
   if (bird.caption === mostRecentCaption) {
     console.log("short-circuiting, we already fished the most recent bird")
     return
+  } else {
+    console.log(`most recent bird caption is ${bird.caption}`)
   }
   console.log(`logging in to IG`)
   const me = await ig.account.login(env.IG_USERNAME!, env.IG_PASSWORD!);
