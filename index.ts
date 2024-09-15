@@ -22,7 +22,7 @@ module.exports.handler = async (event) => {
     console.log(`most recent bird caption is ${bird.caption}`)
   }
   console.log(`logging in to IG`)
-  const me = await ig.account.login(env.IG_USERNAME!, env.IG_PASSWORD!);
+  await ig.account.login(env.IG_USERNAME!, env.IG_PASSWORD!);
   const fish = await birdToFish(bird.image)
   await postToInsta(ig, fish, bird.caption)
 };
