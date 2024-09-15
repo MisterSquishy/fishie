@@ -13,7 +13,7 @@ module.exports.handler = async (event) => {
   ig.state.generateDevice(env.IG_USERNAME!);
   console.log(`logging in to IG`)
   const me = await ig.account.login(env.IG_USERNAME!, env.IG_PASSWORD!);
-  const bird = await getMostRecentBird(ig)
+  const bird = await getMostRecentBird(ig, mostRecentCaption)
   const mostRecentCaption = await getMostRecentFishCaption(ig, me.pk)
   if (bird.caption === mostRecentCaption) {
     console.log("short-circuiting, we already fished the most recent bird")
@@ -29,11 +29,16 @@ const getMostRecentFishCaption = async (ig: IgApiClient, myPk: number): Promise<
   return fishiePosts?.[0]?.caption?.text ?? ''
 }
 
-const getMostRecentBird = async (ig: IgApiClient): Promise<{ image: Buffer, caption: string }> => {
+const getMostRecentBird = async (ig: IgApiClient, mostRecentCaption: string): Promise<{ image: Buffer, caption: string }> => {
   const birdieFeed = ig.feed.user(LOOK_AT_THE_BIRDIE_PK);
   const birdiePosts = await birdieFeed.items();
   const mostRecentPostUrl = birdiePosts[0].image_versions2.candidates[0].url
   const caption = birdiePosts[0].caption!.text
+  if (caption === mostRecentCaption) {
+    // optimization; dont fetch image if we already fished it
+    console.log(`skipping image fetch for ${caption}`)
+    return { image: Buffer.of(), caption }
+  }
   console.log(`getting most recent bird from ${mostRecentPostUrl}`)
   const response = await axios.get(mostRecentPostUrl, { responseType: 'arraybuffer' })
   return { image: Buffer.from(response.data, 'binary'), caption }
