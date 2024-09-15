@@ -13,6 +13,6 @@
   },
   "scripts": {
     "deploy": "serverless deploy",
-    "go": "serverless invoke local --function api"
+    "go": "serverless invoke local --function cron"
   }
 }
