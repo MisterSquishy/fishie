@@ -12,6 +12,8 @@ const FISHIE_PK = 68845303124
 module.exports.handler = async (event) => {
   const ig = new IgApiClient();
   ig.state.generateDevice(env.IG_USERNAME!);
+  console.log(`logging in to IG`)
+  await ig.account.login(env.IG_USERNAME!, env.IG_PASSWORD!);
   const mostRecentCaption = await getMostRecentFishCaption(ig)
   console.log(`most recent fish caption is ${mostRecentCaption}`)
   const bird = await getMostRecentBird(ig, mostRecentCaption)
@@ -21,8 +23,6 @@ module.exports.handler = async (event) => {
   } else {
     console.log(`most recent bird caption is ${bird.caption}`)
   }
-  console.log(`logging in to IG`)
-  await ig.account.login(env.IG_USERNAME!, env.IG_PASSWORD!);
   const fish = await birdToFish(bird.image)
   await postToInsta(ig, fish, bird.caption)
 };
