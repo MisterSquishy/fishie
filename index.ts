@@ -12,10 +12,13 @@ const FISHIE_PK = 68845303124
 module.exports.handler = async (event) => {
   const ig = new IgApiClient();
   ig.state.generateDevice(env.IG_USERNAME!);
+  sleep(Math.random() * 10_000) // pause for 0-10 seconds so instagram doesnt get bad vibes
   console.log(`logging in to IG`)
   await ig.account.login(env.IG_USERNAME!, env.IG_PASSWORD!);
+  sleep(Math.random() * 10_000) // pause for 0-10 seconds so instagram doesnt get bad vibes
   const mostRecentCaption = await getMostRecentFishCaption(ig)
   console.log(`most recent fish caption is ${mostRecentCaption}`)
+  sleep(Math.random() * 10_000) // pause for 0-10 seconds so instagram doesnt get bad vibes
   const bird = await getMostRecentBird(ig, mostRecentCaption)
   if (bird.caption === mostRecentCaption) {
     console.log("short-circuiting, we already fished the most recent bird")
@@ -26,6 +29,8 @@ module.exports.handler = async (event) => {
   const fish = await birdToFish(bird.image)
   await postToInsta(ig, fish, bird.caption)
 };
+
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 const getMostRecentFishCaption = async (ig: IgApiClient): Promise<string> => {
   const fishieFeed = ig.feed.user(FISHIE_PK);
