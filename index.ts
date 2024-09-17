@@ -83,9 +83,10 @@ const birdToFish = async (image: Buffer): Promise<Buffer> => {
 
 const postToInsta = async (ig: IgApiClient, image: Buffer, caption: string) => {
   console.log(`posting to IG`)
-  await ig.publish.photo({
+  const photo = await ig.publish.photo({
     file: image,
     caption,
   });
+  console.log(`posted to IG: https://www.instagram.com/p/${photo.media.id}/ (${photo.media.image_versions2.candidates?.[0].url})`)
 }
 
