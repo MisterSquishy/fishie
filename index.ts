@@ -15,6 +15,8 @@ const DEZGO_API_URL = 'https://api.dezgo.com/text-inpainting'
 const BIRDIE_PK = 49451361619
 const FISHIE_PK = 68845303124
 
+const ROYGBIV = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]
+
 module.exports.handler = Sentry.AWSLambda.wrapHandler(async (event) => {
   const ig = new IgApiClient();
   ig.state.generateDevice(env.IG_USERNAME!);
@@ -63,7 +65,7 @@ const birdToFish = async (image: Buffer): Promise<Buffer> => {
   const formData = new FormData();
   formData.append('mask_prompt', 'bird');
   formData.append('prompt', 'fish');
-  formData.append('negative_prompt', 'poorly drawn tail')
+  formData.append('negative_prompt', ['poorly drawn tail', ...ROYGBIV.sort(() => 0.5 - Math.random()).slice(0, 3)].join(", "))
   formData.append('init_image', image, { filename: 'image.jpg', contentType: 'image/jpeg' })
 
   console.log(`converting bird to fish`)
