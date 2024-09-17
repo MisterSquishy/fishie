@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/serverless';
 import axios from 'axios';
 import 'dotenv';
 import FormData from "form-data";
@@ -5,11 +6,16 @@ import { IgApiClient } from 'instagram-private-api';
 import pngToJpeg from 'png-to-jpeg';
 import { env } from 'process';
 
+Sentry.AWSLambda.init({
+  dsn: env['SENTRY_DSN'],
+  tracesSampleRate: 1.0,
+});
+
 const DEZGO_API_URL = 'https://api.dezgo.com/text-inpainting'
 const BIRDIE_PK = 49451361619
 const FISHIE_PK = 68845303124
 
-module.exports.handler = async (event) => {
+module.exports.handler = Sentry.AWSLambda.wrapHandler(async (event) => {
   const ig = new IgApiClient();
   ig.state.generateDevice(env.IG_USERNAME!);
   sleep(Math.random() * 10_000) // pause for 0-10 seconds so instagram doesnt get bad vibes
@@ -28,7 +34,7 @@ module.exports.handler = async (event) => {
   }
   const fish = await birdToFish(bird.image)
   await postToInsta(ig, fish, bird.caption)
-};
+});
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
