@@ -65,10 +65,11 @@ const birdToFish = async (image: Buffer): Promise<Buffer> => {
   const formData = new FormData();
   formData.append('mask_prompt', 'bird');
   formData.append('prompt', 'fish');
-  formData.append('negative_prompt', ['poorly drawn tail', ...ROYGBIV.sort(() => 0.5 - Math.random()).slice(0, 3)].join(", "))
+  const negativePrompt = ['poorly drawn tail', ...ROYGBIV.sort(() => 0.5 - Math.random()).slice(0, 3)].join(", ")
+  formData.append('negative_prompt', negativePrompt)
   formData.append('init_image', image, { filename: 'image.jpg', contentType: 'image/jpeg' })
 
-  console.log(`converting bird to fish`)
+  console.log(`converting bird to fish with negative prompt: ${negativePrompt}`)
   const response = await axios.postForm(DEZGO_API_URL, formData, {
     headers: {
       "X-Dezgo-Key": env['X_DEZGO_KEY'],
