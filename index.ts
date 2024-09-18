@@ -64,9 +64,9 @@ const getMostRecentBird = async (ig: IgApiClient, mostRecentCaption: string): Pr
 const birdToFish = async (image: Buffer): Promise<Buffer> => {
   const formData = new FormData();
   formData.append('mask_prompt', 'bird');
-  formData.append('prompt', 'fish');
+  formData.append('prompt', 'photo of a fish, national geographic, canon eos r5');
   const excludedColors = ROYGBIV.sort(() => 0.5 - Math.random()).slice(0, 3)
-  const negativePrompt = ['poorly drawn tail', 'two heads', 'unnatural', 'conjoined', 'twin', 'pair', 'duplicate', ...excludedColors].join(", ")
+  const negativePrompt = ['poorly drawn tail', 'two heads', 'unnatural', 'conjoined', 'twin', 'pair', 'deformed', 'disfigured', 'duplicate', ...excludedColors].join(", ")
   formData.append('negative_prompt', negativePrompt)
   formData.append('init_image', image, { filename: 'image.jpg', contentType: 'image/jpeg' })
 
