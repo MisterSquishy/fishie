@@ -35,7 +35,7 @@ module.exports.handler = Sentry.AWSLambda.wrapHandler(async (event) => {
     console.log(`most recent bird caption is ${bird.caption}`)
   }
   const fish = await birdToFish(bird.image)
-  await postToInsta(ig, fish, bird.caption)
+  await postToInsta(ig, fish, bird.caption, bird.url)
 });
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
@@ -46,7 +46,7 @@ const getMostRecentFishCaption = async (ig: IgApiClient): Promise<string> => {
   return fishiePosts?.[0]?.caption?.text ?? ''
 }
 
-const getMostRecentBird = async (ig: IgApiClient, mostRecentCaption: string): Promise<{ image: Buffer, caption: string }> => {
+const getMostRecentBird = async (ig: IgApiClient, mostRecentCaption: string): Promise<{ image: Buffer, caption: string, url: string }> => {
   const birdieFeed = ig.feed.user(BIRDIE_PK);
   const birdiePosts = await birdieFeed.items();
   const mostRecentPostUrl = birdiePosts[0].image_versions2.candidates[0].url
@@ -54,11 +54,12 @@ const getMostRecentBird = async (ig: IgApiClient, mostRecentCaption: string): Pr
   if (caption === mostRecentCaption) {
     // optimization; dont fetch bird image if we already fished it
     console.log(`skipping image fetch for ${caption}`)
-    return { image: Buffer.of(), caption }
+    return { image: Buffer.of(), caption, url: '' }
   }
   console.log(`getting most recent bird from ${mostRecentPostUrl}`)
   const response = await axios.get(mostRecentPostUrl, { responseType: 'arraybuffer' })
-  return { image: Buffer.from(response.data, 'binary'), caption }
+  const post = await ig.insights.post(birdiePosts[0].id)
+  return { image: Buffer.from(response.data, 'binary'), caption, url: post.data.media.display_url }
 }
 
 const birdToFish = async (image: Buffer): Promise<Buffer> => {
@@ -82,12 +83,16 @@ const birdToFish = async (image: Buffer): Promise<Buffer> => {
   return await pngToJpeg({ quality: 100 })(response.data)
 }
 
-const postToInsta = async (ig: IgApiClient, image: Buffer, caption: string) => {
+const postToInsta = async (ig: IgApiClient, image: Buffer, caption: string, birdUrl: string) => {
   console.log(`posting to IG`)
   const photo = await ig.publish.photo({
     file: image,
     caption,
   });
   console.log(`posted to IG: https://www.instagram.com/p/${photo.media.id}/ (${photo.media.image_versions2.candidates?.[0].url})`)
+  ig.media.comment({
+    mediaId: photo.media.id,
+    text: birdUrl,
+  })
 }
 
