@@ -8,6 +8,7 @@
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
     "fs": "^0.0.1-security",
+    "instagram-id-to-url-segment": "^0.0.0",
     "instagram-private-api": "^1.46.1",
     "png-to-jpeg": "^1.0.1",
     "tough-cookie-filestore2": "^1.0.0"

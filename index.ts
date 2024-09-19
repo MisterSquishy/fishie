@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/serverless';
 import axios from 'axios';
 import 'dotenv';
 import FormData from "form-data";
+import { instagramIdToUrlSegment } from 'instagram-id-to-url-segment';
 import { IgApiClient } from 'instagram-private-api';
 import pngToJpeg from 'png-to-jpeg';
 import { env } from 'process';
@@ -49,17 +50,18 @@ const getMostRecentFishCaption = async (ig: IgApiClient): Promise<string> => {
 const getMostRecentBird = async (ig: IgApiClient, mostRecentCaption: string): Promise<{ image: Buffer, caption: string, url: string }> => {
   const birdieFeed = ig.feed.user(BIRDIE_PK);
   const birdiePosts = await birdieFeed.items();
-  const mostRecentPostUrl = birdiePosts[0].image_versions2.candidates[0].url
-  const caption = birdiePosts[0].caption!.text
+  const mostRecentPost = birdiePosts[0];
+  const caption = mostRecentPost.caption!.text
   if (caption === mostRecentCaption) {
     // optimization; dont fetch bird image if we already fished it
     console.log(`skipping image fetch for ${caption}`)
     return { image: Buffer.of(), caption, url: '' }
   }
-  console.log(`getting most recent bird from ${mostRecentPostUrl}`)
-  const response = await axios.get(mostRecentPostUrl, { responseType: 'arraybuffer' })
-  const post = await ig.insights.post(birdiePosts[0].id)
-  return { image: Buffer.from(response.data, 'binary'), caption, url: post.data.media.display_url }
+  const mostRecentPostImageUrl = mostRecentPost.image_versions2.candidates[0].url
+  console.log(`getting most recent bird from ${mostRecentPostImageUrl}`)
+  const response = await axios.get(mostRecentPostImageUrl, { responseType: 'arraybuffer' })
+  const vanityId = instagramIdToUrlSegment(mostRecentPost.pk)
+  return { image: Buffer.from(response.data, 'binary'), caption, url: `https://www.instagram.com/p/${vanityId}/` }
 }
 
 const birdToFish = async (image: Buffer): Promise<Buffer> => {
