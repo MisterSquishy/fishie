@@ -94,7 +94,7 @@ const postToInsta = async (ig: IgApiClient, image: Buffer, caption: string, bird
   console.log(`posted to IG: https://www.instagram.com/p/${photo.media.id}/ (${photo.media.image_versions2.candidates?.[0].url})`)
   ig.media.comment({
     mediaId: photo.media.id,
-    text: birdUrl,
+    text: `This is ${birdUrl}`,
   })
 }
 
