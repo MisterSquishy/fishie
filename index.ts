@@ -37,6 +37,7 @@ module.exports.handler = Sentry.AWSLambda.wrapHandler(async (event) => {
   }
   const fish = await birdToFish(bird.image)
   await postToInsta(ig, fish, bird.caption, bird.url)
+  await ig.account.logout()
 });
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
