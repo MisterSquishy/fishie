@@ -70,7 +70,7 @@ const birdToFish = async (image: Buffer): Promise<Buffer> => {
   formData.append('mask_prompt', 'bird');
   formData.append('prompt', 'fish');
   const excludedColors = ROYGBIV.sort(() => 0.5 - Math.random()).slice(0, 2)
-  const negativePrompt = ['gross', 'uncomfortable', 'disfigured', ...excludedColors].join(", ")
+  const negativePrompt = ['gross', ...excludedColors].join(", ")
   formData.append('negative_prompt', negativePrompt)
   formData.append('init_image', image, { filename: 'image.jpg', contentType: 'image/jpeg' })
 
