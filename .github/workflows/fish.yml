@@ -1,9 +1,7 @@
 name: fish it upp
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   invoke-lambda:
