@@ -6,11 +6,13 @@ useDotenv: true
 
 provider:
   name: aws
-  runtime: nodejs20.x
+  runtime: nodejs24.x
 
 functions:
   cron:
     handler: index.handler
     timeout: 60 # seconds
     events:
-      - schedule: rate(1417 minutes) # 23 hours and 37 minutes, "random"
+      - schedule:
+          rate: rate(1417 minutes)
+          enabled: false
