@@ -16,4 +16,10 @@ jobs:
           cache: npm
       - run: npm ci
       - name: serverless deploy
-        run: export SERVERLESS_ACCESS_KEY=${{ secrets.SERVERLESS_API_KEY }} && npm run deploy
+        run: npm run deploy
+        env:
+          SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_API_KEY }}
+          IG_USERNAME: ${{ secrets.IG_USERNAME }}
+          IG_PASSWORD: ${{ secrets.IG_PASSWORD }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          X_DEZGO_KEY: ${{ secrets.X_DEZGO_KEY }}

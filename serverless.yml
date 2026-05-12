@@ -7,6 +7,11 @@ useDotenv: true
 provider:
   name: aws
   runtime: nodejs24.x
+  environment:
+    IG_USERNAME: ${env:IG_USERNAME}
+    IG_PASSWORD: ${env:IG_PASSWORD}
+    SENTRY_DSN: ${env:SENTRY_DSN}
+    X_DEZGO_KEY: ${env:X_DEZGO_KEY}
 
 functions:
   cron:
