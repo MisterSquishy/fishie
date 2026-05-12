@@ -4,19 +4,31 @@ service: fishie
 frameworkVersion: "4"
 useDotenv: true
 
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+
 provider:
   name: aws
-  runtime: nodejs24.x
+  runtime: python3.12
   environment:
     IG_USERNAME: ${env:IG_USERNAME}
     IG_PASSWORD: ${env:IG_PASSWORD}
     SENTRY_DSN: ${env:SENTRY_DSN}
     X_DEZGO_KEY: ${env:X_DEZGO_KEY}
 
+package:
+  patterns:
+    - '!node_modules/**'
+    - '!*.ts'
+
 functions:
   cron:
     handler: index.handler
-    timeout: 60 # seconds
+    timeout: 180
     events:
       - schedule:
           rate: rate(1417 minutes)
