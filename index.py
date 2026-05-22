@@ -1,4 +1,5 @@
 import io
+import json
 import logging
 import os
 import random
@@ -88,7 +89,7 @@ def handler(event, context):
     cl.delay_range = [1, 3]
 
     logger.info('logging in to IG')
-    cl.login_by_sessionid(os.environ['IG_SESSION_ID'])
+    cl.set_settings(json.loads(os.environ['IG_SETTINGS']))
 
     time.sleep(random.uniform(0, 10))
     most_recent_caption = get_most_recent_fish_caption(cl)
