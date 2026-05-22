@@ -4,25 +4,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  invoke-lambda:
+  fish:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Invoke Lambda function
-        run: |
-          aws lambda invoke \
-            --function-name fishie-dev-cron \
-            --invocation-type Event \
-            --cli-binary-format raw-in-base64-out \
-            --payload '{}' \
-            response.json
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python3 -c "import index; index.handler({}, None)"
+        env:
+          IG_SESSION_ID: ${{ secrets.IG_SESSION_ID }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          X_DEZGO_KEY: ${{ secrets.X_DEZGO_KEY }}
