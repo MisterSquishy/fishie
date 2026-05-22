@@ -21,5 +21,6 @@ jobs:
           SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_API_KEY }}
           IG_USERNAME: ${{ secrets.IG_USERNAME }}
           IG_PASSWORD: ${{ secrets.IG_PASSWORD }}
+          IG_SESSION_ID: ${{ secrets.IG_SESSION_ID }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           X_DEZGO_KEY: ${{ secrets.X_DEZGO_KEY }}

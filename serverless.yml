@@ -15,8 +15,7 @@ provider:
   name: aws
   runtime: python3.12
   environment:
-    IG_USERNAME: ${env:IG_USERNAME}
-    IG_PASSWORD: ${env:IG_PASSWORD}
+    IG_SESSION_ID: ${env:IG_SESSION_ID}
     SENTRY_DSN: ${env:SENTRY_DSN}
     X_DEZGO_KEY: ${env:X_DEZGO_KEY}
 

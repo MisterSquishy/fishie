@@ -88,7 +88,7 @@ def handler(event, context):
     cl.delay_range = [1, 3]
 
     logger.info('logging in to IG')
-    cl.login(os.environ['IG_USERNAME'], os.environ['IG_PASSWORD'])
+    cl.login_by_sessionid(os.environ['IG_SESSION_ID'])
 
     time.sleep(random.uniform(0, 10))
     most_recent_caption = get_most_recent_fish_caption(cl)
