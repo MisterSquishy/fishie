@@ -13,8 +13,10 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: pip install -r requirements.txt
-      - run: python3 -c "import index; index.handler({}, None)"
+      - run: python3 -c "import index; index.handler()"
         env:
+          IG_USERNAME: ${{ secrets.IG_USERNAME }}
+          IG_PASSWORD: ${{ secrets.IG_PASSWORD }}
           IG_SETTINGS: ${{ secrets.IG_SETTINGS }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           X_DEZGO_KEY: ${{ secrets.X_DEZGO_KEY }}

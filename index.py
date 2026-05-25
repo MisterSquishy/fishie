@@ -10,14 +10,13 @@ import requests
 import sentry_sdk
 from PIL import Image
 from instagrapi import Client
-from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
+from instagrapi.exceptions import LoginRequired
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 sentry_sdk.init(
     dsn=os.environ.get('SENTRY_DSN'),
-    integrations=[AwsLambdaIntegration()],
     traces_sample_rate=1.0,
 )
 
@@ -27,13 +26,39 @@ FISHIE_PK = 68845303124
 ROYGBIV = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet']
 
 
+def ig_login() -> Client:
+    cl = Client()
+    cl.delay_range = [1, 3]
+    username = os.environ['IG_USERNAME']
+    password = os.environ['IG_PASSWORD']
+    settings_json = os.environ.get('IG_SETTINGS')
+
+    if settings_json:
+        cl.set_settings(json.loads(settings_json))
+        cl.login(username, password)
+        try:
+            cl.get_timeline_feed()
+            logger.info('session valid')
+        except LoginRequired:
+            logger.info('session expired, doing fresh login')
+            old = cl.get_settings()
+            cl.set_settings({})
+            cl.set_uuids(old['uuids'])
+            cl.login(username, password)
+    else:
+        logger.info('no saved session, logging in fresh')
+        cl.login(username, password)
+
+    return cl
+
+
 def get_most_recent_fish_caption(cl: Client) -> str:
-    medias = cl.user_medias(FISHIE_PK, amount=1)
+    medias = cl.user_medias_v1(FISHIE_PK, amount=1)
     return medias[0].caption_text or '' if medias else ''
 
 
 def get_most_recent_bird(cl: Client, most_recent_caption: str) -> dict:
-    medias = cl.user_medias(BIRDIE_PK, amount=1)
+    medias = cl.user_medias_v1(BIRDIE_PK, amount=1)
     most_recent = medias[0]
     caption = most_recent.caption_text or ''
 
@@ -84,12 +109,8 @@ def post_to_insta(cl: Client, image: bytes, caption: str, bird_url: str):
         os.unlink(temp_path)
 
 
-def handler(event, context):
-    cl = Client()
-    cl.delay_range = [1, 3]
-
-    logger.info('logging in to IG')
-    cl.set_settings(json.loads(os.environ['IG_SETTINGS']))
+def handler(*_):
+    cl = ig_login()
 
     time.sleep(random.uniform(0, 10))
     most_recent_caption = get_most_recent_fish_caption(cl)
@@ -100,9 +121,9 @@ def handler(event, context):
 
     if bird['caption'] == most_recent_caption:
         logger.info('short-circuiting, we already fished the most recent bird')
-        return
+    else:
+        logger.info(f"most recent bird caption is {bird['caption']}")
+        time.sleep(random.uniform(0, 10))
+        fish = bird_to_fish(bird['image'])
+        post_to_insta(cl, fish, bird['caption'], bird['url'])
 
-    logger.info(f"most recent bird caption is {bird['caption']}")
-    time.sleep(random.uniform(0, 10))
-    fish = bird_to_fish(bird['image'])
-    post_to_insta(cl, fish, bird['caption'], bird['url'])
