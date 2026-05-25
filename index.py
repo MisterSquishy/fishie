@@ -10,7 +10,6 @@ import requests
 import sentry_sdk
 from PIL import Image
 from instagrapi import Client
-from instagrapi.exceptions import LoginRequired
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -29,26 +28,7 @@ ROYGBIV = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet']
 def ig_login() -> Client:
     cl = Client()
     cl.delay_range = [1, 3]
-    username = os.environ['IG_USERNAME']
-    password = os.environ['IG_PASSWORD']
-    settings_json = os.environ.get('IG_SETTINGS')
-
-    if settings_json:
-        cl.set_settings(json.loads(settings_json))
-        cl.login(username, password)
-        try:
-            cl.get_timeline_feed()
-            logger.info('session valid')
-        except LoginRequired:
-            logger.info('session expired, doing fresh login')
-            old = cl.get_settings()
-            cl.set_settings({})
-            cl.set_uuids(old['uuids'])
-            cl.login(username, password)
-    else:
-        logger.info('no saved session, logging in fresh')
-        cl.login(username, password)
-
+    cl.set_settings(json.loads(os.environ['IG_SETTINGS']))
     return cl
 
 
